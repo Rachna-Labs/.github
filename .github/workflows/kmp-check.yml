@@ -1,0 +1,67 @@
+# Reusable check for every Kotlin Multiplatform repo in rachna-labs.
+#
+# Caller:
+#   jobs:
+#     check:
+#       uses: rachna-labs/.github/.github/workflows/kmp-check.yml@main
+#       with:
+#         tasks: ":shared:testDebugUnitTest :androidApp:assembleDebug"
+#       secrets: inherit
+#
+# Products get rachna-kit checked out next to them at the tag in `.rachna-kit`,
+# so `includeBuild("../rachna-kit")` works the same as on a laptop.
+name: kmp-check
+on:
+  workflow_call:
+    inputs:
+      tasks:
+        description: Gradle tasks to run
+        type: string
+        required: true
+      tokens-check:
+        description: Check generated design tokens are up to date (rachna-kit only)
+        type: boolean
+        default: false
+    secrets:
+      KIT_READ_TOKEN:
+        required: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: repo
+
+      - name: Which rachna-kit
+        id: kit
+        run: |
+          if [ -f repo/.rachna-kit ]; then
+            echo "ref=$(tr -d '[:space:]' < repo/.rachna-kit)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.kit.outputs.ref != ''
+        with:
+          repository: rachna-labs/rachna-kit
+          ref: ${{ steps.kit.outputs.ref }}
+          path: rachna-kit
+          token: ${{ secrets.KIT_READ_TOKEN }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Design tokens are up to date
+        if: inputs.tokens-check
+        working-directory: repo
+        run: python3 tools/generate_tokens.py --check
+
+      - name: Gradle
+        working-directory: repo
+        run: ./gradlew ${{ inputs.tasks }}
