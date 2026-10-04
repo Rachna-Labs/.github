@@ -2,4 +2,4 @@
 
 Simple, useful apps for everyday life, from Rachna Softech LLP in India.
 
-[teamrachna.tech](https://teamrachna.tech) · hello@teamrachna.tech
+[rachnalabs.com](https://www.rachnalabs.com) · hello@rachnalabs.com
