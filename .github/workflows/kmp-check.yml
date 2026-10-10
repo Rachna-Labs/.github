@@ -8,8 +8,8 @@
 #         tasks: ":shared:testDebugUnitTest :androidApp:assembleDebug"
 #       secrets: inherit
 #
-# Products get rachna-kit checked out next to them at the tag in `.rachna-kit`,
-# so `includeBuild("../rachna-kit")` works the same as on a laptop.
+# Products get rachna-kit checked out at the tag in `.rachna-kit`, at the same
+# relative place as on a laptop, so `includeBuild("../01-rachna-labs/platform/rachna-kit")` works in both.
 name: kmp-check
 on:
   workflow_call:
@@ -47,7 +47,7 @@ jobs:
         with:
           repository: rachna-labs/rachna-kit
           ref: ${{ steps.kit.outputs.ref }}
-          path: rachna-kit
+          path: 01-rachna-labs/platform/rachna-kit
           token: ${{ secrets.KIT_READ_TOKEN }}
 
       - uses: actions/setup-java@v4
