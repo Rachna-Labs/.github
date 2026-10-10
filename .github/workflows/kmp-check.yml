@@ -48,7 +48,7 @@ jobs:
         env:
           KIT_DEPLOY_KEY: ${{ secrets.KIT_DEPLOY_KEY }}
         run: |
-          [ -n "$KIT_DEPLOY_KEY" ] || { echo "::error::The KIT_DEPLOY_KEY org secret is missing (read-only deploy key on rachna-kit). See rachna-hq 02-Engineering/github.md"; exit 1; }
+          [ -n "$KIT_DEPLOY_KEY" ] || { echo "::error::The KIT_DEPLOY_KEY repo secret is missing (read-only deploy key on rachna-kit). Run make github-setup, see rachna-hq 02-Engineering/github.md"; exit 1; }
 
       - uses: actions/checkout@v4
         if: steps.kit.outputs.ref != ''
