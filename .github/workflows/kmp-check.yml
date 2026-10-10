@@ -43,6 +43,13 @@ jobs:
             echo "ref=$(tr -d '[:space:]' < product/02-Platforms/01-App/.rachna-kit)" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: KIT_READ_TOKEN is set
+        if: steps.kit.outputs.ref != ''
+        env:
+          KIT_READ_TOKEN: ${{ secrets.KIT_READ_TOKEN }}
+        run: |
+          [ -n "$KIT_READ_TOKEN" ] || { echo "::error::Add the KIT_READ_TOKEN secret (read-only access to rachna-kit). See rachna-hq 02-Engineering/github.md"; exit 1; }
+
       - uses: actions/checkout@v4
         if: steps.kit.outputs.ref != ''
         with:
