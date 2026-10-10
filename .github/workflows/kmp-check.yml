@@ -8,8 +8,9 @@
 #         tasks: ":shared:testDebugUnitTest :androidApp:assembleDebug"
 #       secrets: inherit
 #
-# Products get rachna-kit checked out at the tag in `.rachna-kit`, at the same
-# relative place as on a laptop, so `includeBuild("../01-rachna-labs/platform/rachna-kit")` works in both.
+# The product is checked out at product/02-Platforms/01-App and rachna-kit at 00-Shared/01-Kit (the
+# tag in `.rachna-kit`): the same layout as a laptop, so `includeBuild("../../../00-Shared/01-Kit")`
+# works in both.
 name: kmp-check
 on:
   workflow_call:
@@ -33,13 +34,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: repo
+          path: product/02-Platforms/01-App
 
       - name: Which rachna-kit
         id: kit
         run: |
-          if [ -f repo/.rachna-kit ]; then
-            echo "ref=$(tr -d '[:space:]' < repo/.rachna-kit)" >> "$GITHUB_OUTPUT"
+          if [ -f product/02-Platforms/01-App/.rachna-kit ]; then
+            echo "ref=$(tr -d '[:space:]' < product/02-Platforms/01-App/.rachna-kit)" >> "$GITHUB_OUTPUT"
           fi
 
       - uses: actions/checkout@v4
@@ -47,7 +48,7 @@ jobs:
         with:
           repository: rachna-labs/rachna-kit
           ref: ${{ steps.kit.outputs.ref }}
-          path: 01-rachna-labs/platform/rachna-kit
+          path: 00-Shared/01-Kit
           token: ${{ secrets.KIT_READ_TOKEN }}
 
       - uses: actions/setup-java@v4
@@ -59,9 +60,9 @@ jobs:
 
       - name: Design tokens are up to date
         if: inputs.tokens-check
-        working-directory: repo
+        working-directory: product/02-Platforms/01-App
         run: python3 tools/generate_tokens.py --check
 
       - name: Gradle
-        working-directory: repo
+        working-directory: product/02-Platforms/01-App
         run: ./gradlew ${{ inputs.tasks }}
