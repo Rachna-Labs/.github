@@ -24,7 +24,7 @@ on:
         type: boolean
         default: false
     secrets:
-      KIT_READ_TOKEN:
+      KIT_DEPLOY_KEY:
         required: false
 
 jobs:
@@ -43,12 +43,12 @@ jobs:
             echo "ref=$(tr -d '[:space:]' < product/02-Platforms/01-App/.rachna-kit)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: KIT_READ_TOKEN is set
+      - name: KIT_DEPLOY_KEY is set
         if: steps.kit.outputs.ref != ''
         env:
-          KIT_READ_TOKEN: ${{ secrets.KIT_READ_TOKEN }}
+          KIT_DEPLOY_KEY: ${{ secrets.KIT_DEPLOY_KEY }}
         run: |
-          [ -n "$KIT_READ_TOKEN" ] || { echo "::error::Add the KIT_READ_TOKEN secret (read-only access to rachna-kit). See rachna-hq 02-Engineering/github.md"; exit 1; }
+          [ -n "$KIT_DEPLOY_KEY" ] || { echo "::error::The KIT_DEPLOY_KEY org secret is missing (read-only deploy key on rachna-kit). See rachna-hq 02-Engineering/github.md"; exit 1; }
 
       - uses: actions/checkout@v4
         if: steps.kit.outputs.ref != ''
@@ -56,7 +56,7 @@ jobs:
           repository: rachna-labs/rachna-kit
           ref: ${{ steps.kit.outputs.ref }}
           path: 00-Shared/01-Kit
-          token: ${{ secrets.KIT_READ_TOKEN }}
+          ssh-key: ${{ secrets.KIT_DEPLOY_KEY }}
 
       - uses: actions/setup-java@v4
         with:
