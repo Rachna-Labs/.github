@@ -3,7 +3,7 @@
 # Caller:
 #   jobs:
 #     check:
-#       uses: rachna-labs/.github/.github/workflows/kmp-check.yml@main
+#       uses: rachna-labs/.github/.github/workflows/kmp-check.yml@master
 #       with:
 #         tasks: ":shared:testDebugUnitTest :androidApp:assembleDebug"
 #       secrets: inherit
