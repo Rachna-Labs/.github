@@ -1,0 +1,50 @@
+# Reusable check for every Node repo in rachna-labs (a web platform, an extension, a site).
+#
+# Caller:
+#   jobs:
+#     check:
+#       uses: rachna-labs/.github/.github/workflows/node-check.yml@master
+#       with:
+#         script: check
+#       secrets: inherit
+#
+# It never needs a key: every Rachna web app must build and check with no secrets at all,
+# so CI runs exactly what a new laptop runs.
+name: node-check
+on:
+  workflow_call:
+    inputs:
+      script:
+        description: The npm script to run
+        type: string
+        default: check
+      node-version:
+        description: Node version
+        type: string
+        default: "24"
+      build:
+        description: Also run `npm run build`
+        type: boolean
+        default: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --fund=false
+
+      - name: Check
+        run: npm run ${{ inputs.script }}
+
+      - name: Build
+        if: inputs.build
+        run: npm run build
