@@ -11,6 +11,10 @@
 # The product is checked out at product/02-Platforms/01-App and rachna-kit at 00-Shared/01-Kit (the
 # tag in `.rachna-kit`): the same layout as a laptop, so `includeBuild("../../../00-Shared/01-Kit")`
 # works in both.
+#
+# A product whose repo is rooted at 02-Platforms rather than at 01-App (Plate, Try) passes
+# `checkout-path`, and `gradle-dir` when the Gradle build is not at the repo root. Both
+# default to the old single location, so every other caller is unaffected.
 name: kmp-check
 on:
   workflow_call:
@@ -23,6 +27,14 @@ on:
         description: Check generated design tokens are up to date (rachna-kit only)
         type: boolean
         default: false
+      checkout-path:
+        description: Where the product repo is checked out
+        type: string
+        default: product/02-Platforms/01-App
+      gradle-dir:
+        description: Where ./gradlew lives. Defaults to checkout-path.
+        type: string
+        default: ""
     secrets:
       KIT_DEPLOY_KEY:
         required: false
@@ -34,13 +46,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          path: product/02-Platforms/01-App
+          path: ${{ inputs.checkout-path }}
 
       - name: Which rachna-kit
         id: kit
         run: |
-          if [ -f product/02-Platforms/01-App/.rachna-kit ]; then
-            echo "ref=$(tr -d '[:space:]' < product/02-Platforms/01-App/.rachna-kit)" >> "$GITHUB_OUTPUT"
+          if [ -f "${{ inputs.checkout-path }}/.rachna-kit" ]; then
+            echo "ref=$(tr -d '[:space:]' < "${{ inputs.checkout-path }}/.rachna-kit")" >> "$GITHUB_OUTPUT"
           fi
 
       - name: KIT_DEPLOY_KEY is set
@@ -67,9 +79,9 @@ jobs:
 
       - name: Design tokens are up to date
         if: inputs.tokens-check
-        working-directory: product/02-Platforms/01-App
+        working-directory: ${{ inputs.checkout-path }}
         run: python3 tools/generate_tokens.py --check
 
       - name: Gradle
-        working-directory: product/02-Platforms/01-App
+        working-directory: ${{ inputs.gradle-dir || inputs.checkout-path }}
         run: ./gradlew ${{ inputs.tasks }}
