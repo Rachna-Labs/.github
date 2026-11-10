@@ -48,11 +48,21 @@ jobs:
         with:
           path: ${{ inputs.checkout-path }}
 
+      # FOUND, not assumed. This read `<checkout-path>/.rachna-kit`, and no product has the
+      # file there: it sits beside the app's Gradle build, which is one or two folders in
+      # (01-App, or 02-Platforms/01-App). So the pin was always empty, the kit was never
+      # checked out, and every KMP product failed with "Included build .../00-Shared/01-Kit
+      # does not exist" from 2026-10-31 on. The error names the kit, which is why it read as
+      # a kit problem rather than as this.
       - name: Which rachna-kit
         id: kit
         run: |
-          if [ -f "${{ inputs.checkout-path }}/.rachna-kit" ]; then
-            echo "ref=$(tr -d '[:space:]' < "${{ inputs.checkout-path }}/.rachna-kit")" >> "$GITHUB_OUTPUT"
+          pin=$(find "${{ inputs.checkout-path }}" -maxdepth 4 -name .rachna-kit -print -quit 2>/dev/null || true)
+          if [ -n "$pin" ]; then
+            echo "ref=$(tr -d '[:space:]' < "$pin")" >> "$GITHUB_OUTPUT"
+            echo "Pinned to $(tr -d '[:space:]' < "$pin") by $pin"
+          else
+            echo "No .rachna-kit under ${{ inputs.checkout-path }}, so the kit is not checked out."
           fi
 
       - name: KIT_DEPLOY_KEY is set
