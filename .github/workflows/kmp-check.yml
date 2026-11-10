@@ -79,7 +79,7 @@ jobs:
       # shared carries that tag's tree under 01-Kit.
       #
       # CHANGE THIS AT THE NEXT KIT RELEASE, which will be tagged `kit-vX.Y.Z` in
-      # shared: check out `rachna-labs/shared` at `kit-${{ ref }}` into
+      # rachna-core: check out `rachna-labs/rachna-core` at `kit-${{ ref }}` into
       # `00-Shared` instead, and bump every product's `.rachna-kit` in the same PR.
       - uses: actions/checkout@v4
         if: steps.kit.outputs.ref != ''
