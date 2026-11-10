@@ -26,11 +26,21 @@ on:
         description: Also run `npm run build`
         type: boolean
         default: true
+      dir:
+        description: >
+          Where package.json lives, relative to the repo root. A product repo rooted at its
+          workspace folder since decision 0015 keeps its package.json one level in, at
+          02-Platforms. Defaults to the root, so every earlier caller is unaffected.
+        type: string
+        default: "."
 
 jobs:
   check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: ${{ inputs.dir }}
     steps:
       - uses: actions/checkout@v4
 
@@ -38,6 +48,9 @@ jobs:
         with:
           node-version: ${{ inputs.node-version }}
           cache: npm
+          # `defaults.run.working-directory` does not reach an action's inputs, so the
+          # lockfile is named from the repo root here.
+          cache-dependency-path: ${{ inputs.dir }}/package-lock.json
 
       - name: Install
         run: npm ci --no-audit --fund=false

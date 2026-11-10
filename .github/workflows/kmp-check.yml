@@ -62,6 +62,15 @@ jobs:
         run: |
           [ -n "$KIT_DEPLOY_KEY" ] || { echo "::error::The KIT_DEPLOY_KEY repo secret is missing (read-only deploy key on rachna-kit). Run make github-setup, see rachna-hq 02-Engineering/github.md"; exit 1; }
 
+      # STILL THE OLD REPO, ON PURPOSE. rachna-kit was archived on 2026-11-10 when it
+      # became rachna-shared's 01-Kit (decision 0015). An archived repo can still be
+      # cloned, and the tag a product pins (v0.1.0) exists only there: the subtree import
+      # kept the kit's own commits with the kit at their root, so no commit in
+      # rachna-shared carries that tag's tree under 01-Kit.
+      #
+      # CHANGE THIS AT THE NEXT KIT RELEASE, which will be tagged `kit-vX.Y.Z` in
+      # rachna-shared: check out `rachna-labs/rachna-shared` at `kit-${{ ref }}` into
+      # `00-Shared` instead, and bump every product's `.rachna-kit` in the same PR.
       - uses: actions/checkout@v4
         if: steps.kit.outputs.ref != ''
         with:
